@@ -1,0 +1,629 @@
+//** 1. Blade - Creating Templates
+Blade is Laravel’s built-in templating engine. Blade templates are usually stored in the resources/views directory and use the .blade.php file extension.
+
+Example: home.blade.php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My App</title>
+</head>
+<body>
+    <h1>Welcome to My App</h1>
+</body>
+</html>
+
+//*** 2. PHP Output in Blade
+Blade allows you to echo data using double curly braces:
+
+<h1>Hello, {{ $name }}</h1>
+You can also use {!! !!} if you want to render raw HTML:
+
+{!! $htmlContent !!}
+⚠️ Be cautious with {!! !!} as it can expose your app to XSS attacks if the data is not sanitized.
+
+//*** Template Inheritance in Blade
+Template inheritance in Blade allows you to define a master layout and extend it in child views. This promotes code reusability and cleaner structure for your views.
+
+🔹 1. Create a Master Layout
+This layout defines the overall structure of your site.
+
+📁 File: resources/views/layouts/app.blade.php
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@yield('title')</title>
+</head>
+<body>
+    <header>
+        <h1>My Application</h1>
+    </header>
+
+    <div class="content">
+        @yield('content')
+    </div>
+
+    <footer>
+        <p>© 2025 My App</p>
+    </footer>
+</body>
+</html>
+
+🔹 2. Extend the Layout in a Child Template
+Use the @extends directive to inherit the layout and define content sections using @section.
+
+📁 File: resources/views/home.blade.php
+
+@extends('layouts.app')
+
+@section('title', 'Home Page')
+
+@section('content')
+    <p>Welcome to the homepage!</p>
+@endsection
+
+🔹 3. Common Blade Directives for Inheritance
+
+Directive 	Purpose
+@extends  |	Inherit a layout
+@section  | 	Define content for a section
+@yield	  | Display a section placeholder in layout
+@parent	  |Append to parent section
+@include  |	Include a partial view
+
+🔹 4. Including Partials (Reusable Components)
+Use @include for reusable parts like navigation, headers, etc.
+
+@include('partials.navbar')
+📁 File: resources/views/partials/navbar.blade.php
+
+<nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+</nav>
+
+✅ Benefits of Blade Template Inheritance
+DRY code (Don’t Repeat Yourself)
+
+->Easier maintenance
+->Consistent layout across pages
+->cleaner view files
+
+
+
+
+
+
+1. Route Group with prefix
+what is Route grouping with prefix?
+
+Route::view('student/home','home');
+Route::view('student/show',[HomeController::class,'show']);
+Route::view('student/save',[HomeController::class,'save']);
+
+here in all three routes student is prefix. And when multiple routes have same prefix then we can put it into a group.
+It is helpful when you have large number of routes with same prefix.
+
+Route::prefix('student')->group(function(){
+    Route::view('/homenew','Homenew');
+    Route::get('/show',[Homenew::class, 'show']);
+    Route::get('/add',[Homenew::class, 'add']);
+}); 
+
+lets make a homwnew view and Homenew controller to understand it.
+
+2. Route Group with controller
+
+  Route::get('/add',[Homenew::class, 'add']);
+  Route::get('/show',[Homenew::class, 'show']);
+  Route::get('/{name}',[Homenew::class, 'about']);
+
+  Here we have multiple routes with same controller so we can group them
+
+Route::controller(Homenew::class)->group(function(){
+    Route::get('/show','show');
+    Route::get('/add','add');
+    Route::get('/{name}','about');
+})
+
+
+//* MiddleWare
+-> MiddleWare is a layer b/w the user and the application
+-> here we can check conditions or filter user request
+-> if condition pass request will reach to MiddleWare
+
+Types-
+1. Global MiddleWare
+2. Route MiddleWare
+3. Group MiddleWare
+
+to create it- php artisan make:middleware name
+now file is created in middleware folder in http 
+
+//* connect to Mysql
+1. Make Database in php myadmin
+2. update env file
+3. Run migration - php artisan migrate
+4.make controller and routes
+5. get data from Database
+
+we use model for getting data from database, but we can also use a header file
+
+use Illuminate\Support\Facades\db;
+
+then create a function
+function users(){
+        
+        return DB::select('select * from tableName');
+    }
+
+//* display db data on ui
+1. make view ex-users
+2. call view from controller
+3. pass db data from the controller to view
+4. user for each loop display data
+
+//* Eloquent Model in Laravel
+Laravel includes Eloquent, an object-relational mapper (ORM) that makes it enjoyable to interact with your database. When using Eloquent, each database table has a corresponding "Model" that is used to interact with that table. In addition to retrieving records from the database table, Eloquent models allow you to insert, update, and delete records from the table as well.
+
+1. what is Model?
+-Part of mvc architecture
+-This is a PHP file with class
+-Here we write business logic and DB      connections
+-But in Laravel we mostly do DB related work
+-In Laravel we have an Object-relational mapper (ORM) Feature
+
+2. make a table in database in phpmyadmin like student
+
+3. check .env file config
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+
+SESSION_DRIVER=file
+
+4. make controller like studentcontroller
+
+5. Now we need to make model from databse to fetch data
+
+so we'll first make model - php artisan make::model student
+
+always remember that table name should be plural and model name should be sam as table but singular as here our table name was students so model will be student.
+
+in case if the table table name is differnt then we can assign table name in Model
+
+protected $table="table_name";
+
+now model will be connected to the required table
+
+
+when model is created we will import it into the controller
+//importing the model
+        $students=\App\Models\student::all(); //this will give all data from the student table from db
+         return $students;
+
+6. now let show this model data in ui
+
+so create a view for it ex- student
+
+//* Model inspecting
+we can inspect model using command line 
+ php artisan model:show student
+
+ //* http client
+ -what is http client
+ -make constroller,Route, view
+ -how to use http client
+ -call api with http client
+
+add a header file
+use Illuminate\Support\Facades\http;
+
+then in function
+$response=Http::get("apikey");
+return $response;
+
+//* database: query builder
+Database query builder provides a convenient way to creating and running database queries
+
+eg: get data,where condition, order by, update data, delete, max, min, value etc
+ 
+ lets make a function in UserData named queries int that it is written
+ function queries()
+    {
+        $result=DB::table('users')->get();
+                    ^                    ^
+                     \ samse as Select * from users 
+    }
+
+we can filter data according to anything available in data 
+ex-
+
+$result=DB::table('users')->where('email','de@gmail.com')->get();
+
+now it will show only entry with email 
+
+if you want to get first entry from database
+first make array
+$result=[$result];
+then 
+$result=DB::table('users')->first();
+
+//* to insert data into the table
+
+$result=DB::table('users')->insert([
+    'name'=>'Tony',
+    'email'=>'tony@gmail.com',
+    'password'=>'ds',
+]);
+if($result){
+    return "Data inserted";
+}
+else{
+    return "data not inserted";
+}
+
+//* to update data
+
+lets try to update email of tony
+
+$result=DB::table('users')->where('name','tony')->update(['email'=>'tony@.com']);
+if($result){
+    return "Data updated";
+}
+else{
+    return "data not updated";
+}
+
+//*to delete
+
+$result=DB::table('users')->where('name','tony')->delete();
+if($result){
+    return "Data deleted";
+}
+else{
+    return "data not deleted";
+}
+
+//**************** Eloquent Modal: query builder ***********//
+now we will use query builder in Modal
+so lets amke a modal named user,view and controller name it user
+
+to print all users data
+$respone=user::get(); or $respone=user::all();
+
+//* to use filter or condition
+$response=user::where('name','tony')->get();
+
+to print only first
+first make array response
+$response=[$response];
+$response=user::where('name','tony')->first();
+
+-> for filtering with id ex- id 1
+$response=user::find(1);
+
+//* to insert
+$response=user::insert([
+    'name'=>'jay',
+    'email'=>'jay@.com',
+    'password'=>'jay',
+]);
+if($response){
+    return "data inserted';
+}
+else{
+    return "data not inserted";
+}
+
+//* to update
+
+        $response=user::where('name','jay')->update(['email'=>'durgesh@']);
+        if($response){
+            return "Data updated";
+        }
+        else{
+            return "data not updated";
+        }
+
+        to make this work properly write timestamp in model
+public $timestamps=false;
+
+//* todelete
+$respone=user::where('name','jay')->delete();
+ if($response){
+        return "Data deleted";
+     }else{
+      return "data not deleted";
+ }
+
+//****** Route Methods
+
+Route::get($uri,$callback); ->whenever we required to load page
+
+Route::post($uri,$callback); -> whenever we need to store data
+
+Route::put($uri,$callback); ->to update many data
+Route::patch($uri,$callback); ->to update specific data
+
+Route::delete($uri,$callback); -> to delete
+
+Route::options($uri,$callback);
+
+Route::view($uri,$callback); ->same as get
+
+//*** route functions any and match
+
+//any function
+
+let you have multiple routes
+Route::get('user',[userController::class,'any;]);
+Route::post('user',[userController::class,'any;]);
+Route::put('user',[userController::class,'any;]);
+Route::delete('user',[userController::class,'any;]);
+
+instead of writting all we will use any
+Route::any('user',[userController::class, 'any']);
+
+here it means like any function routes have whether it is get,put,post,delete if they have same class
+then we can use any function
+
+//match function
+
+it is like it matches functions, if functions matches then only route will work
+
+Route::match(['post','get'],"user",[userController::class, 'any']);
+
+means for post and get only the route works
+
+//** http request class
+made a HttpForm controller, formHttp view,
+go and check
+then use various http request methods in controller
+
+
+//** sessions
+A session is a way to store and access data across multiple pages of a website for a single user.
+-> session store data in the servise side.
+-> but manage with browser cookies
+
+lets make a views name login, profile and controller 
+loginController
+
+we will login then store data in session and will access it into profile page
+
+//** laravel flash session
+A session is a way to store data only once
+
+After page refresh or anything route request data will removed from flash session.
+
+This is basically used for display error and success message
+
+//** upload and display file
+->make small form to select file
+-> make view named upload
+->make a controller for uploading file
+named uploadController
+-> store file with auto generated name
+-> store file with the provided name
+-> make upload file public
+->display file after upload.
+
+we need to use enctype="multipart/form-data" in form
+
+//*** insert Data in mysql db table using form
+->set .env file config
+->make Controller, Model, view
+-> make html form
+-> create table in mysql db
+-> store data in db table
+
+make controller named MysqlForm, view names add-student
+
+make form in view add-student , then import model into controller and make add operation
+
+ //lets add data to mysql
+        $student=new student(); <-specifier
+        $student->name=$request->name;
+        $student->email=$request->email;
+        $student->phone=$request->phone;
+        //save data
+        $student->save();
+
+        if($student)
+        {
+            echo "student data added";
+        }
+        else{
+            echo "not able to add";
+        }
+
+//** get and display data from db
+-> make a view named list-student, Route, and Controller function
+-> fetch data from Mysql table
+-> Display data on ui
+
+//** Delete data from mysql
+-> make delte option for in table
+-> make route and controller function
+-> Delete data from table
+-> redirect after delete
+
+// delete function in controller
+    function deleteList($id)
+    {
+        $isDeleted=student::destroy($id);
+        //condition if deleted then show table again without that deleted entry
+        if($isDeleted)
+        {
+            return redirect('add');
+        }
+    }
+
+//** populate Data in input fields from Mysql table
+->make the edit option in the table
+->make route and controller function
+->get data from table with id
+->make html form
+-> populate data in input fields
+
+//* updating the populate data in db
+
+  <!-- to update the edit data into db we need to make a hidden put method -->
+         <input type="hidden" name="_method" value="put" />
+  in th edit-student from.
+
+  then make route for it
+
+  //** how to search data from mysql
+  ->make search form
+  ->make Route  and Controller function searching in MysqlForm controller
+  ->search and display data
+
+  //**************** pagination in mysql data
+  lets assume there is thousand of data in mysql, so the browser will hang to show thousan data in single page , so pagination helps in showing a specific amount of data in page then it gives links like page 1,2,3...
+
+  -> apply pagination with database result that is in list function in controller MysqlForm
+  ->apply pagination links
+  -> add style
+
+//** deleting multiple records in db
+not studying for now, video number 48, 49
+https://www.youtube.com/watch?v=j3jD5M-BH3U&list=PL8p2I9GklV45Q9ofPyixWAdb1-WLiBvNl&index=48
+
+i'll study it when get time.
+
+//*** Laravel Stubs
+Stubs are template files used by Artisan to generate boilerplate code for controllers, models, etc.
+
+//Command to Publish:
+php artisan stub:publish
+
+//Customizing:
+Edit files in /stubs folder (e.g., controller.stub)
+Artisan will now use your customized stubs.
+
+//Common Placeholders:
+Placeholder	Replaced With
+{{ namespace }}	-> Full class namespace
+{{ class }}	-> Class name
+{{ model }}	-> Model name
+
+//Benefits:
+Define custom file structures
+Speeds up development
+Maintains coding standards
+
+//Reset to Defaults:
+Delete the /stubs folder to revert to Laravel's default stubs.
+
+//*** Migration in Laravel
+noemally we create tables from phpmyadmin
+but with migration we  make table through laravel and then migrate it.
+
+lets make a table name timestamp
+php laravel make:migration create_test_table
+
+Think of it as a blueprint for your database schema.
+
+Stored in: database/migrations/
+
+Basic Structure of a Migration
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateUsersTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id(); // Primary key
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamps(); // created_at and updated_at
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+}
+
+🔹 Running Migrations
+
+php artisan migrate
+
+🔹 Rolling Back Migrations
+
+php artisan migrate:rollback
+Rolls back the last batch of migrations.
+
+Other useful rollback commands:
+
+migrate:reset – rolls back all migrations.
+
+migrate:refresh – rolls back and re-runs all migrations.
+
+migrate:fresh – drops all tables and re-runs all migrations.
+
+//** seeding
+to push dummy data into table 
+-> php artisan make:seeder nameOfseeder
+
+example i made test seeder
+
+then to seeder
+
+php artisan db:seed --class=test
+
+//** Send Email in Laravel
+
+->make change in .env file for mail config
+
+from:-
+MAIL_MAILER=log
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+to:-
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=dependrasingh027@gmail.com
+MAIL_PASSWORD=rdnzdizlbwjnjmao
+MAIL_FROM_ADDRESS=dependrasingh027@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+
+->generate app and password in gmail
+  remember that the password u copy should not have spaces when you paste in env file
+
+->make mail file
+  php artisan make:mail welcomeEmail
+
+->make controller and route
+php artisan make:controller MailController
+
+-> make a mail view file
+
+->make email template 
+
+->send and test mail
+
+
+//*** send email with html form
+-> make view send-email file and route
+-> make html form
+-> get data from view to controller
+-> send and test mail
